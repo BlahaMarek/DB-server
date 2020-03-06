@@ -1,8 +1,9 @@
 const express = require('express')
 const router = new express.Router
 const Project = require('../models/project')
+const auth = require('../middlewere/auth')
 
-router.post('/projects', async (req, res) => {
+router.post('/projects',auth, async (req, res) => {
     const project = new Project(req.body)
 
     try {

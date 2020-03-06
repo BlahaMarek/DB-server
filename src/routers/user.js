@@ -1,19 +1,69 @@
 const express = require('express')
 const router = new express.Router
 const User = require('../models/user')
+const auth = require('../middlewere/auth')
 
+// CREATE USER
 router.post('/users', async (req, res) => {
     const user = new User(req.body)
-
     try {
-        await user.save()
-        res.status(201).send(user)
+        await user.addRoleAndSave('ROLE_STUDENT')
+        const token = await user.generateAuthToken()
+
+        res.status(201).send({user, token})
     } catch (e) {
         res.status(400).send(e)
     }
 })
 
-router.get('/users', async (req, res) => {
+// LOGIN USER
+router.post('/users/login', async (req, res) => {
+    try {
+        const user = await User.findByCredentials(req.body.login, req.body.password)
+        const token = await user.generateAuthToken()
+        res.send({user, token})    
+    } catch (e) {
+        console.log(e)
+        res.status(400).send()
+    }
+})
+
+// LOGOUT USER
+router.post('/users/logout', auth, async (req, res) => {
+    try {
+        req.user.tokens = req.user.tokens.filter((token) => token.token != req.token)
+        await req.user.save()
+        res.send(req.user)
+    } catch (e) {
+        res.status(500).send()
+    }
+})
+
+// RESET USER PASSWORD
+router.post('/users/reset', async (req, res) => {
+    try {
+        const oldUser = await User.findOne({login: req.body.login})
+        const newUser = oldUser.generatePassword()
+        console.log(newUser)
+        res.send(req.newUser)
+    } catch (e) {
+        res.status(500).send()
+    }
+})
+
+// DELETE ALL TOKENS FROM USER
+router.post('/users/logoutAll', auth, async (req, res) => {
+    try {
+        req.user.tokens = []
+        await req.user.save()
+        res.send(req.user)
+    } catch (e) {
+        res.status(500).send()
+    }
+})
+
+// GET ALL USERS
+router.get('/users', auth, async (req, res) => {
     try {
         const users = await User.find({})
         res.status(200).send(users)
@@ -22,7 +72,8 @@ router.get('/users', async (req, res) => {
     }
 })
 
-router.get('/users/:id', async (req, res) => {
+//GET USER BY ID
+router.get('/users/:id',auth, async (req, res) => {
     const _id = req.params.id
     const user = await User.findById(_id)
 
@@ -34,18 +85,21 @@ router.get('/users/:id', async (req, res) => {
     }
 })
 
-
-router.patch('/users/:id', async (req, res) => {
+// UPDATE USER
+router.patch('/users/:id', auth, async (req, res) => {
     const updates = Object.keys(req.body)
     const allowedUpdates = ['password', 'email']
     const isValidUpdate = updates.every((update) => allowedUpdates.includes(update))
-
+    console.log(req.body);
     if (!isValidUpdate) {
         return res.status(400).send({error : 'Nevhodne parametre na update'})
     }
 
     try {
-        const user = await User.findByIdAndUpdate(req.params.id, req.body, {runValidators: true, new: true})
+        const user = await User.findById(req.params.id)
+
+        updates.forEach(update => user[update] = req.body[update])
+        await user.save()
         if (!user) { res.status(404).send() }
         res.send(user)
     } catch (e) {
