@@ -1,12 +1,13 @@
 const express = require('express')
 const router = new express.Router
 const Task = require('../models/task')
+const User = require('../models/user')
 const auth = require('../middlewere/auth')
 
 // CREATE TASK
 router.post('/tasks', auth, async (req, res) => {
+    console.log(req.body)
     const task = new Task(req.body)
-    console.log(task)
     try {
         await task.save()
         res.status(201).send(task)
@@ -17,9 +18,10 @@ router.post('/tasks', auth, async (req, res) => {
 })
 
 // GET MY TASKS
-router.get('/tasks/me', auth, async (req, res) => {
+router.get('/tasks/me/:id', auth, async (req, res) => {
     try {
-        const tasks = await Task.find({personRef: req.body.personRef})
+        const user = await User.findById(req.params.id)
+        const tasks = await Task.findTasksByGroup( req.params.id, false, [] )
         res.send(tasks)
     } catch (e) {
         res.status(400).send(e)
@@ -27,9 +29,10 @@ router.get('/tasks/me', auth, async (req, res) => {
 })
 
 // GET LAB TASKS
-router.get('/tasks/lab', auth, async (req, res) => {
+router.get('/tasks/lab/:id', auth, async (req, res) => {
     try {
-        const tasks = await Task.find({personRef: "", report: false})
+        const user = await User.findById(req.params.id)
+        const tasks = await Task.findTasksByGroup( null, false, user.groups )
         res.send(tasks)
     } catch (e) {
         res.status(400).send(e)
@@ -37,9 +40,10 @@ router.get('/tasks/lab', auth, async (req, res) => {
 })
 
 // GET LAB REPORTS
-router.get('/tasks/reports', auth, async (req, res) => {
+router.get('/tasks/reports/:id', auth, async (req, res) => {
     try {
-        const tasks = await Task.find({personRef: "", report: true})
+        const user = await User.findById(req.params.id)
+        const tasks = await Task.findTasksByGroup( null, true, user.groups )
         res.send(tasks)
     } catch (e) {
         res.status(400).send(e)
@@ -47,9 +51,9 @@ router.get('/tasks/reports', auth, async (req, res) => {
 })
 
 // DELETE TASK
-router.delete('/tasks', auth, async (req, res) => {
+router.delete('/tasks/:id', auth, async (req, res) => {
     try {
-        const tasks = await Task.deleteOne({_id: req.body.taskId})
+        const tasks = await Task.deleteOne({_id: req.params.id})
         res.send(tasks)
     } catch (e) {
         res.status(400).send(e)

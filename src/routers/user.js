@@ -6,6 +6,8 @@ const auth = require('../middlewere/auth')
 // CREATE USER
 router.post('/users', async (req, res) => {
     const user = new User(req.body)
+    console.log(req.body)
+    console.log("registruj")
     try {
         await user.addRoleAndSave('ROLE_STUDENT')
         const token = await user.generateAuthToken()
@@ -90,7 +92,6 @@ router.patch('/users/:id', auth, async (req, res) => {
     const updates = Object.keys(req.body)
     const allowedUpdates = ['password', 'email']
     const isValidUpdate = updates.every((update) => allowedUpdates.includes(update))
-    console.log(req.body);
     if (!isValidUpdate) {
         return res.status(400).send({error : 'Nevhodne parametre na update'})
     }

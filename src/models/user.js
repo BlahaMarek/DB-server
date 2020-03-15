@@ -42,6 +42,11 @@ const userSchema = new mongoose.Schema({
             required: true
         },
     }],
+    groups: [{
+        group: {
+            name: String,
+        },
+    }],
     tokens: [{
         token: {
             type: String,
@@ -118,7 +123,6 @@ userSchema.statics.findByCredentials = async (login, password) => {
 // pre hashovanie hesla pred ulozenim
 userSchema.pre('save', async function(next) {
     const user = this
-    user.roles
 
     if (user.isModified('password')) {
         user.password = await bcrypt.hash(user.password, 8)
