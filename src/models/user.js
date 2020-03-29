@@ -44,7 +44,7 @@ const userSchema = new mongoose.Schema({
     }],
     groups: [{
         group: {
-            name: String,
+            type: String,
         },
     }],
     tokens: [{
@@ -78,6 +78,29 @@ userSchema.methods.addRoleAndSave = async function(role) {
     const user = this
 
     user.roles = user.roles.concat({ role })
+
+    await user.save()
+    return user
+}
+
+userSchema.methods.addGroupAndSave = async function(group) {
+    const user = this
+
+    console.log(user.groups)
+
+    user.groups = user.groups.concat({ group })
+
+    console.log(user.groups)
+
+    await user.save()
+    return user
+}
+
+userSchema.methods.deleteGroupAndSave = async function(group) {
+    const user = this
+
+    user.groups = user.groups.filter(singleGroup => singleGroup.group != group)
+
     await user.save()
     return user
 }
@@ -118,6 +141,12 @@ userSchema.statics.findByCredentials = async (login, password) => {
     }
 
     return user;
+}
+
+userSchema.statics.findSlaves = async (groups) => {
+    const slaves = await User.find({ "groups.group" :  {$in : groups},  "roles.role" : "ROLE_STUDENT"})
+
+    return slaves;
 }
 
 // pre hashovanie hesla pred ulozenim

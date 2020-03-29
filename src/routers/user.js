@@ -87,6 +87,64 @@ router.get('/users/:id',auth, async (req, res) => {
     }
 })
 
+//GET USER`S SLAVES
+router.get('/users/slaves/:id',auth, async (req, res) => {
+    const _id = req.params.id
+    const user = await User.findById(_id)
+
+    const myGroups = user.groups.map(group => group.group)
+
+    const slaves = await User.findSlaves(myGroups);
+
+
+    try {
+        if (!slaves) { res.send([]) }
+        res.send(slaves)
+    } catch (e) {
+        res.status(500).send(e)
+    }
+})
+
+//ADD NEW GROUP TO USER
+router.get('/users/:id/:group',auth, async (req, res) => {
+    const _id = req.params.id
+    const group = req.params.group
+
+    const user = await User.findById(_id)
+    
+    console.log(_id)
+    console.log(group)
+    console.log(user)
+
+    const updatedUser = await user.addGroupAndSave(group)
+    
+    console.log(updatedUser)
+
+    try {
+        if (!updatedUser) { res.send([]) }
+        res.send(updatedUser)
+    } catch (e) {
+        res.status(500).send(e)
+    }
+})
+
+//DELETE GROUP TO USER
+router.delete('/users/:id/:group',auth, async (req, res) => {
+    const _id = req.params.id
+    const group = req.params.group
+
+    const user = await User.findById(_id)
+
+    const updatedUser = await user.deleteGroupAndSave(group)
+    
+    try {
+        if (!updatedUser) { res.send([]) }
+        res.send(updatedUser)
+    } catch (e) {
+        res.status(500).send(e)
+    }
+})
+
 // UPDATE USER
 router.patch('/users/:id', auth, async (req, res) => {
     const updates = Object.keys(req.body)
