@@ -144,7 +144,8 @@ userSchema.statics.findByCredentials = async (login, password) => {
 }
 
 userSchema.statics.findSlaves = async (groups) => {
-    const slaves = await User.find({ "groups.group" :  {$in : groups},  "roles.role" : "ROLE_STUDENT"})
+    // const slaves = await User.find({ "groups.group" :  {$in : groups},  "roles.role" : "ROLE_STUDENT"})
+    const slaves = await User.find({"roles.role" : "ROLE_STUDENT"})
 
     return slaves;
 }
