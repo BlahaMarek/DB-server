@@ -1,19 +1,7 @@
 const mongoose = require('mongoose')
 const validator = require('validator')
 
-const projectSchema = new mongoose.Schema({
-    startDate: {
-        type: Date,
-        required: true
-    },
-    name: {
-        type: String,
-        required: true
-    },
-    group: {
-        type: String,
-        required: true
-    },
+const projectContentSchema = new mongoose.Schema({
     desc: [{
         date: {
             type: Date,
@@ -28,13 +16,63 @@ const projectSchema = new mongoose.Schema({
             required: true
         },
     }],
+    experiments: [{
+        person: {
+            type: String,
+            required: true
+        }
+    }]
 })
 
-projectSchema.methods.addToDescription = async function(comment) {
+const projectSchema = new mongoose.Schema({
+    startDate: {
+        type: Date,
+        required: true
+    },
+    name: {
+        type: String,
+        required: true
+    },
+    group: {
+        type: String,
+        required: true
+    },
+    workDates: {
+        type: Map,
+        of: projectContentSchema
+    },
+})
+
+projectSchema.methods.addToDescription = async function(comment, date) {
     const project = this
 
-    project.desc = project.desc.concat(comment)
+    project.workDates.get(date).desc = project.workDates.get(date).desc.concat(comment)
 
+    await project.save()
+    
+    return project
+}
+
+
+projectSchema.methods.addDateToProject = async function(date) {
+    let project = this
+    if (!project.workDates) {
+        console.log("tu")
+        project.set('workDates', {})
+    }
+
+    const datesArray = Array.from(project.workDates.keys())
+    if (datesArray.includes(date)) {
+        return project
+    }
+
+    let obj = {
+        desc : [],
+        experiments : []
+    }
+
+    project.workDates.set(date, obj)
+    console.log(project.workDates)
     await project.save()
     
     return project

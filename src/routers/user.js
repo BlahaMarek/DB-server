@@ -111,15 +111,9 @@ router.get('/users/:id/:group',auth, async (req, res) => {
     const group = req.params.group
 
     const user = await User.findById(_id)
-    
-    console.log(_id)
-    console.log(group)
-    console.log(user)
 
     const updatedUser = await user.addGroupAndSave(group)
     
-    console.log(updatedUser)
-
     try {
         if (!updatedUser) { res.send([]) }
         res.send(updatedUser)

@@ -15,7 +15,7 @@ router.post('/projects',auth, async (req, res) => {
     }
 })
 
-// GET PROJECT 
+// GET PROJECTS 
 router.get('/projects', auth, async (req, res) => {
     try {
         const myStringGroups = req.user.groups.map(group => group.group)
@@ -40,14 +40,30 @@ router.get('/projects/:id', auth, async (req, res) => {
     }
 })
 
-// POST comment to  PROJECT BY ID
-router.post('/projects/:id/comment', auth, async (req, res) => {
+// ADD DATE TO PROJECT
+router.post('/projects/newdate/:id/', auth, async (req, res) => {
     const id = req.params.id
-    const comment = req.body
+    const date = req.body.date
 
     try {
         const project = await Project.findById({_id: id})
-        const newProject = await project.addToDescription(comment)
+        const newProject = await project.addDateToProject(date)
+        
+        res.status(200).send(newProject)
+
+    } catch (e) {
+        res.status(400).send(e)
+    }
+})
+// POST comment to  PROJECT BY ID
+router.post('/projects/:id/comment', auth, async (req, res) => {
+    const id = req.params.id
+    const comment = req.body.comment
+    const date = req.body.date
+
+    try {
+        const project = await Project.findById({_id: id})
+        const newProject = await project.addToDescription(comment, date)
     
         res.status(200).send(newProject)
 
