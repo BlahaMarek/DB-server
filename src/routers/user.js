@@ -6,8 +6,6 @@ const auth = require('../middlewere/auth')
 // CREATE USER
 router.post('/users', async (req, res) => {
     const user = new User(req.body)
-    console.log(req.body)
-    console.log("registruj")
     try {
         await user.addRoleAndSave('ROLE_STUDENT')
         const token = await user.generateAuthToken()
@@ -25,7 +23,6 @@ router.post('/users/login', async (req, res) => {
         const token = await user.generateAuthToken()
         res.send({user, token})    
     } catch (e) {
-        console.log(e)
         res.status(400).send()
     }
 })
@@ -46,7 +43,6 @@ router.post('/users/reset', async (req, res) => {
     try {
         const oldUser = await User.findOne({login: req.body.login})
         const newUser = oldUser.generatePassword()
-        console.log(newUser)
         res.send(req.newUser)
     } catch (e) {
         res.status(500).send()
@@ -100,6 +96,24 @@ router.get('/users/slaves/:id',auth, async (req, res) => {
     try {
         if (!slaves) { res.send([]) }
         res.send(slaves)
+    } catch (e) {
+        res.status(500).send(e)
+    }
+})
+
+//GET USER`S COLABORATORS
+router.get('/users/colaborators/:id',auth, async (req, res) => {
+    const _id = req.params.id
+    const user = await User.findById(_id)
+
+    const myGroups = user.groups.map(group => group.group)
+
+    const colaborators = await User.findColaborators(myGroups, _id);
+
+
+    try {
+        if (!colaborators) { res.send([]) }
+        res.send(colaborators)
     } catch (e) {
         res.status(500).send(e)
     }

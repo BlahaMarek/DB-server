@@ -25,8 +25,6 @@ router.get('/calendar/:id', auth, async (req, res) => {
 
         const calendarItems = await Calendar.find({group: {$in : groups}})
 
-        console.log(calendarItems)
-
         res.status(200).send(calendarItems)
 
     } catch (e) {

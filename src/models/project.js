@@ -20,6 +20,9 @@ const projectContentSchema = new mongoose.Schema({
         person: {
             type: String,
             required: true
+        },
+        desc: {
+            type: String,
         }
     }]
 })
@@ -54,10 +57,19 @@ projectSchema.methods.addToDescription = async function(comment, date) {
 }
 
 
+projectSchema.methods.addToExperiment = async function(experiment, date) {
+    const project = this
+
+    project.workDates.get(date).experiments = project.workDates.get(date).experiments.concat(experiment)
+
+    await project.save()
+    
+    return project
+}
+
 projectSchema.methods.addDateToProject = async function(date) {
     let project = this
     if (!project.workDates) {
-        console.log("tu")
         project.set('workDates', {})
     }
 
@@ -72,7 +84,6 @@ projectSchema.methods.addDateToProject = async function(date) {
     }
 
     project.workDates.set(date, obj)
-    console.log(project.workDates)
     await project.save()
     
     return project

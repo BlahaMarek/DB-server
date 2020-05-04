@@ -3,6 +3,7 @@ const userRouter = require('./routers/user')
 const projectRouter = require('./routers/project')
 const taskRouter = require('./routers/task')
 const calendarRouter = require('./routers/calendar')
+const messageRouter = require('./routers/message')
 require('./db/mongoose')
 
 const app = express()
@@ -19,6 +20,7 @@ app.use(userRouter)
 app.use(projectRouter)
 app.use(taskRouter)
 app.use(calendarRouter)
+app.use(messageRouter)
 
 app.listen(port, () => {
     console.log(`Server is up on port: ${port}`)

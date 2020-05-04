@@ -72,4 +72,21 @@ router.post('/projects/:id/comment', auth, async (req, res) => {
     }
 })
 
+// POST experiemnt to  PROJECT BY ID
+router.post('/projects/:id/experiment', auth, async (req, res) => {
+    const id = req.params.id
+    const experiment = req.body.experiment
+    const date = req.body.date
+
+    try {
+        const project = await Project.findById({_id: id})
+
+        const newProject = await project.addToExperiment(experiment, date)
+    
+        res.status(200).send(newProject)
+
+    } catch (e) {
+        res.status(400).send(e)
+    }
+})
 module.exports = router

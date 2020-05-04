@@ -86,11 +86,7 @@ userSchema.methods.addRoleAndSave = async function(role) {
 userSchema.methods.addGroupAndSave = async function(group) {
     const user = this
 
-    console.log(user.groups)
-
     user.groups = user.groups.concat({ group })
-
-    console.log(user.groups)
 
     await user.save()
     return user
@@ -148,6 +144,12 @@ userSchema.statics.findSlaves = async (groups) => {
     const slaves = await User.find({"roles.role" : "ROLE_STUDENT"})
 
     return slaves;
+}
+
+userSchema.statics.findColaborators = async (groups, id) => {
+    const colaborators = await User.find({ "groups.group" :  {$in : groups}, _id: {$ne : id}})
+
+    return colaborators;
 }
 
 // pre hashovanie hesla pred ulozenim
