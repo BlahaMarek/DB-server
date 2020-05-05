@@ -1,7 +1,10 @@
 const express = require('express')
 const router = new express.Router
 const Project = require('../models/project')
+const Calibration = require('../models/calibration')
 const auth = require('../middlewere/auth')
+const regression = require('regression')
+
 
 // POST PROJECT
 router.post('/projects',auth, async (req, res) => {
@@ -48,7 +51,7 @@ router.post('/projects/newdate/:id/', auth, async (req, res) => {
     try {
         const project = await Project.findById({_id: id})
         const newProject = await project.addDateToProject(date)
-        
+
         res.status(200).send(newProject)
 
     } catch (e) {
@@ -84,6 +87,32 @@ router.post('/projects/:id/experiment', auth, async (req, res) => {
         const newProject = await project.addToExperiment(experiment, date)
     
         res.status(200).send(newProject)
+
+    } catch (e) {
+        res.status(400).send(e)
+    }
+})
+
+// CALCULATE CALIBRATION
+router.post('/projects/regression', auth, async (req, res) => {
+    const data = req.body
+    try {
+        const result = regression.linear(data)
+
+        res.status(200).send(result)
+
+    } catch (e) {
+        res.status(400).send(e)
+    }
+})
+
+// POST CALIBRATION
+router.post('/calibrations', auth, async (req, res) => {
+    try {
+        console.log(req.body)
+        const calibration = new Calibration(req.body)
+        const newCalibration = await calibration.save();
+        res.status(200).send(newCalibration)
 
     } catch (e) {
         res.status(400).send(e)

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const validator = require('validator')
+const regression = require('regression')
 
 const projectContentSchema = new mongoose.Schema({
     desc: [{
@@ -84,6 +85,18 @@ projectSchema.methods.addDateToProject = async function(date) {
     }
 
     project.workDates.set(date, obj)
+    await project.save()
+    
+    return project
+}
+
+projectSchema.methods.countLinearRegression = async function(date, data) {
+    const project = this
+    const experiments = project.workDates.get(date).experiments
+
+    const result = regression.linear(data)
+    console.log(result.string) 
+
     await project.save()
     
     return project
