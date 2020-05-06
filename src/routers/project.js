@@ -75,7 +75,7 @@ router.post('/projects/:id/comment', auth, async (req, res) => {
     }
 })
 
-// POST experiemnt to  PROJECT BY ID
+// POST experiemnt to PROJECT BY ID
 router.post('/projects/:id/experiment', auth, async (req, res) => {
     const id = req.params.id
     const experiment = req.body.experiment
@@ -83,7 +83,6 @@ router.post('/projects/:id/experiment', auth, async (req, res) => {
 
     try {
         const project = await Project.findById({_id: id})
-
         const newProject = await project.addToExperiment(experiment, date)
     
         res.status(200).send(newProject)
@@ -97,8 +96,7 @@ router.post('/projects/:id/experiment', auth, async (req, res) => {
 router.post('/projects/regression', auth, async (req, res) => {
     const data = req.body
     try {
-        const result = regression.linear(data)
-
+        const result = regression.linear(data, {order: 2, precision: 4})
         res.status(200).send(result)
 
     } catch (e) {
@@ -109,10 +107,33 @@ router.post('/projects/regression', auth, async (req, res) => {
 // POST CALIBRATION
 router.post('/calibrations', auth, async (req, res) => {
     try {
-        console.log(req.body)
         const calibration = new Calibration(req.body)
         const newCalibration = await calibration.save();
         res.status(200).send(newCalibration)
+
+    } catch (e) {
+        res.status(400).send(e)
+    }
+})
+
+router.get('/calibrations', auth, async (req, res) => {
+    try {
+        const calibrations = await Calibration.find({})
+        const sorted = calibrations.sort((function(a,b) {return b.date - a.date}))
+
+        res.status(200).send(sorted)
+
+    } catch (e) {
+        res.status(400).send(e)
+    }
+})
+
+router.get('/calibrations/:name', auth, async (req, res) => {
+    try {
+        const name = req.params.name
+        const calibrations = await Calibration.find({name})
+
+        res.status(200).send(calibrations)
 
     } catch (e) {
         res.status(400).send(e)

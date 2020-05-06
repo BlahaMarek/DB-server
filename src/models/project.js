@@ -20,10 +20,32 @@ const projectContentSchema = new mongoose.Schema({
     experiments: [{
         person: {
             type: String,
-            required: true
         },
         desc: {
             type: String,
+        },
+        calibration: {
+            type: String,
+        },
+        data: [{
+            x: {
+                type: Number,
+            },
+            y: {
+                type: Number,
+            },
+            z: {
+                type: Number,
+            }
+        }],
+        func: {
+            type: String,
+        },
+        r: {
+            type: Number,
+        },
+        activity: {
+            type: Number,
         }
     }]
 })
