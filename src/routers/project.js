@@ -128,6 +128,19 @@ router.get('/calibrations', auth, async (req, res) => {
     }
 })
 
+// DELETE CALIBRATION
+router.delete('/calibrations/:id', auth, async (req, res) => {
+    try {
+        const id = req.params.id
+        const calibration = await Calibration.findByIdAndDelete({_id: id})
+
+        res.status(200).send(calibration)
+
+    } catch (e) {
+        res.status(400).send(e)
+    }
+})
+
 router.get('/calibrations/:name', auth, async (req, res) => {
     try {
         const name = req.params.name
