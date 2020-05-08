@@ -4,7 +4,7 @@ const Message = require('../models/message')
 const User = require('../models/user')
 const auth = require('../middlewere/auth')
 
-// CREATE CALENDAR ITEM
+// CREATE MESSAGE ITEM
 router.post('/messages', auth, async (req, res) => {
     const message = new Message(req.body)
     try {
@@ -16,7 +16,7 @@ router.post('/messages', auth, async (req, res) => {
     }
 })
 
-// GET CALENDAR 
+// GET MESSAGE 
 router.get('/messages', auth, async (req, res) => {
     const from = req.query.from
     const to = req.query.to
@@ -26,7 +26,7 @@ router.get('/messages', auth, async (req, res) => {
                 { $and : [ { from : from }, { to : to   } ] },
                 { $and : [ { from : to },   { to : from } ] }
             ]
-        } )
+        } ).limit( 500 )
         
         res.status(200).send(messages)
 

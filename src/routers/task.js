@@ -49,6 +49,18 @@ router.get('/tasks/reports/:id', auth, async (req, res) => {
     }
 })
 
+// DONE TASK
+router.put('/tasks/done/:id', auth, async (req, res) => {
+    try {
+        const task = await Task.findById( {_id: req.params.id} )
+        task.done = true;
+        await task.save()
+        res.send(task)
+    } catch (e) {
+        res.status(400).send(e)
+    }
+})
+
 // DELETE TASK
 router.delete('/tasks/:id', auth, async (req, res) => {
     try {
