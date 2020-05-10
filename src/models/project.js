@@ -17,6 +17,11 @@ const projectContentSchema = new mongoose.Schema({
             required: true
         },
     }],
+    photos: [{
+        photo: {
+            type: String,
+        },
+    }],
     experiments: [{
         person: {
             type: String,
@@ -84,6 +89,17 @@ projectSchema.methods.addToExperiment = async function(experiment, date) {
     const project = this
 
     project.workDates.get(date).experiments = project.workDates.get(date).experiments.concat(experiment)
+
+    await project.save()
+    
+    return project
+}
+
+projectSchema.methods.addToPhotos = async function(photo, date) {
+    const project = this
+    console.log("###########")
+    project.workDates.get(date).photos = project.workDates.get(date).photos.concat({photo})
+    console.log("###########")
 
     await project.save()
     

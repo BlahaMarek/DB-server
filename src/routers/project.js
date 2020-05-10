@@ -92,6 +92,26 @@ router.post('/projects/:id/experiment', auth, async (req, res) => {
     }
 })
 
+// POST photo to PROJECT BY ID
+router.post('/projects/:id/photo', auth, async (req, res) => {
+    const id = req.params.id
+    const photo = req.body.photo
+    const date = req.body.date
+
+    try {
+        const project = await Project.findById({_id: id})
+
+        const newProject = await project.addToPhotos(photo, date)
+
+        console.log(newProject)
+
+        res.status(200).send(newProject)
+
+    } catch (e) {
+        res.status(400).send(e)
+    }
+})
+
 // CALCULATE CALIBRATION
 router.post('/projects/regression', auth, async (req, res) => {
     const data = req.body
@@ -147,6 +167,41 @@ router.get('/calibrations/:name', auth, async (req, res) => {
         const calibrations = await Calibration.find({name})
 
         res.status(200).send(calibrations)
+
+    } catch (e) {
+        res.status(400).send(e)
+    }
+})
+
+// var Readable = require('stream').Readable; 
+// function bufferToStream(binary) {
+//     const readableInstanceStream = new Readable({
+//       read() {
+//         this.push(binary);
+//         this.push(null);
+//       }
+//     });
+//     return readableInstanceStream;
+//   }
+
+
+var multer  = require('multer')
+var upload = multer()
+const CSV = require('csv-string');
+
+// CALCULATE DATA FROM FILE
+router.post('/projects/file', auth, upload.single('file'), async (req, res) => {
+    try {
+        var csv=req.file.buffer.toString('utf8')
+        const parsedCsv = CSV.parse(csv, "\t")
+
+        const filtered = parsedCsv.filter(data => {
+            return data.includes(' A01')}).map(data => { 
+                
+                return {time: data[6], absorbation: data[7]}
+            })
+
+        res.status(200).send({filtered})
 
     } catch (e) {
         res.status(400).send(e)
