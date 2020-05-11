@@ -34,5 +34,20 @@ router.get('/messages', auth, async (req, res) => {
         res.status(400).send(e)
     }
 })
+router.get('/messages/group', auth, async (req, res) => {
+    try {
+        const messages = await Message.find( {
+            $or : [
+                { from: 'group' },
+                { to: 'group' }
+            ]
+        } ).limit( 500 )
+        
+        res.status(200).send(messages)
+
+    } catch (e) {
+        res.status(400).send(e)
+    }
+})
 
 module.exports = router

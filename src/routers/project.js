@@ -196,7 +196,7 @@ router.post('/projects/file', auth, upload.single('file'), async (req, res) => {
         const parsedCsv = CSV.parse(csv, "\t")
 
         const filtered = parsedCsv.filter(data => {
-            return data.includes(' A01')}).map(data => { 
+            return data.includes(' F04')}).map(data => { 
                 
                 return {time: data[6], absorbation: data[7]}
             })
